@@ -1,0 +1,66 @@
+{
+  "name": "koishi-plugin-aka-ibkr-agent",
+  "version": "0.1.1",
+  "description": "对接 ibkr 分析服务的 Koishi 薄适配层。",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BakaAkari/aka-ibkr-agent.git"
+  },
+  "homepage": "https://github.com/BakaAkari/aka-ibkr-agent#readme",
+  "bugs": {
+    "url": "https://github.com/BakaAkari/aka-ibkr-agent/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "koishi": "^4.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "koishi": "^4.18.0",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap",
+    "clean": "rimraf dist",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "smoke": "node scripts/smoke.mjs",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "koishi",
+    "koishi-plugin",
+    "aka",
+    "ibkr",
+    "trading"
+  ],
+  "koishi": {
+    "description": {
+      "en": "Thin Koishi adapter for the ibkr analysis service.",
+      "zh": "对接 ibkr 分析服务的 Koishi 薄适配层"
+    },
+    "category": "tool",
+    "locales": [
+      "zh",
+      "en"
+    ]
+  }
+}

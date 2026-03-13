@@ -1,0 +1,80 @@
+# koishi-plugin-aka-ibkr-agent
+
+对接 `ibkr` 分析服务的 Koishi 薄适配层。
+
+这个插件只做三件事：
+
+- 把 Koishi 命令或聊天消息转成 `ibkr` 的 `/api/v1/analyze` 请求
+- 把 `ibkr` 返回的文本直接发回会话
+- 在 `ibkr` 迭代过程中提供一个低成本 smoke 检查
+
+## 当前边界
+
+- 依赖 `ibkr` 当前的 `GET /health` 和 `POST /api/v1/analyze`
+- 默认按只读分析使用
+- 不在 Koishi 侧重复实现意图识别和交易逻辑
+- 仅在上游真正产出确认字段后，再考虑确认执行流
+
+## 配置
+
+- `baseUrl`: `ibkr` 服务基础地址，默认 `http://127.0.0.1:8000`
+- `timeout`: HTTP 超时，默认 `30000`
+- `authToken`: 可选 Bearer Token
+- `defaultResponseMode`: 命令默认输出模式
+- `showDiagnostics`: 是否附加上游来源和错误信息
+- `chatCommandName`: 主聊天命令名，默认 `ibchat`
+- `commandAliases`: 兼容命令别名，默认包含 `ibkr`
+- `enableMiddleware`: 是否启用聊天式转发
+- `middlewarePrefixes`: 聊天入口前缀，默认 `ib `、`ibkr `
+- `middlewareResponseMode`: 聊天入口输出模式
+- `allowDirectChat`: 私聊允许不带前缀直接转发
+- `ignoreSelf`: 忽略机器人自身消息
+- `privateOnly`: 仅在私聊触发聊天转发
+- `platforms`: 平台白名单，为空表示不限
+- `channelWhitelist`: 频道白名单，格式 `platform:channelId`
+
+## 命令
+
+```text
+ibchat <message>
+ibchat.health
+```
+
+默认还兼容：
+
+```text
+ibkr <message>
+ibkr.health
+```
+
+可选参数：
+
+- `-m <mode>`: `brief` / `full` / `push`
+- `-f`: 强制 `full`
+- `-p`: 强制 `push`
+- `-e`: 允许上游尝试进入执行分支
+- `-d`: 本次附加诊断信息
+
+## 联调
+
+```sh
+pnpm typecheck
+pnpm build
+pnpm run smoke
+```
+
+可选环境变量：
+
+```sh
+IBKR_AGENT_BASE_URL=http://127.0.0.1:8000
+IBKR_AGENT_AUTH_TOKEN=
+IBKR_AGENT_TIMEOUT=30000
+IBKR_AGENT_MESSAGE=帮我看看今晚持仓风险
+```
+
+`smoke` 会检查：
+
+- `/health` 是否可用
+- `/api/v1/analyze` 是否仍返回关键字段
+
+这样在 `ibkr` 迭代时，可以第一时间发现接口漂移。
