@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BakaAkari/aka-ibkr-agent.git"
+    "url": "git+https://github.com/BakaAkari/aka-ib-agent.git"
   },
-  "homepage": "https://github.com/BakaAkari/aka-ibkr-agent#readme",
+  "homepage": "https://github.com/BakaAkari/aka-ib-agent#readme",
   "bugs": {
-    "url": "https://github.com/BakaAkari/aka-ibkr-agent/issues"
+    "url": "https://github.com/BakaAkari/aka-ib-agent/issues"
   },
   "type": "module",
   "main": "dist/index.cjs",
