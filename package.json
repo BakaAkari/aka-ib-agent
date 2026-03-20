@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-aka-trader-agent",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "对接 trader-agent 分析服务的 Koishi 薄适配层。",
   "license": "MIT",
   "repository": {
