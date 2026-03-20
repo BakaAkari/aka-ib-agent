@@ -1,7 +1,7 @@
-const baseUrl = (process.env.IBKR_AGENT_BASE_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '')
-const authToken = process.env.IBKR_AGENT_AUTH_TOKEN || ''
-const timeout = Number(process.env.IBKR_AGENT_TIMEOUT || 30000)
-const message = process.env.IBKR_AGENT_MESSAGE || '帮我看看今晚持仓风险'
+const baseUrl = (process.env.TRADER_AGENT_BASE_URL || process.env.IBKR_AGENT_BASE_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '')
+const authToken = process.env.TRADER_AGENT_AUTH_TOKEN || process.env.IBKR_AGENT_AUTH_TOKEN || ''
+const timeout = Number(process.env.TRADER_AGENT_TIMEOUT || process.env.IBKR_AGENT_TIMEOUT || 30000)
+const message = process.env.TRADER_AGENT_MESSAGE || process.env.IBKR_AGENT_MESSAGE || '帮我看看今晚持仓风险'
 
 const headers = {
   'content-type': 'application/json',

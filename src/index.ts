@@ -1,7 +1,7 @@
 import { Context, Schema } from 'koishi'
 import type { Session } from 'koishi'
 
-export const name = 'aka-ibkr-agent'
+export const name = 'aka-trader-agent'
 export const inject = ['http'] as const
 
 type ResponseMode = 'brief' | 'full' | 'push'
@@ -79,7 +79,7 @@ const logLevelSchema: Schema<LogLevel> = Schema.union([
 
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
-    baseUrl: Schema.string().default('http://127.0.0.1:8000').description('ibkr 服务基础地址'),
+    baseUrl: Schema.string().default('http://127.0.0.1:8000').description('trader-agent 服务基础地址'),
     timeout: Schema.number().min(1000).max(120000).default(30000).description('请求超时，单位毫秒'),
     authToken: Schema.string().role('secret').default('').description('可选 Bearer Token'),
     defaultResponseMode: responseModeSchema.default('brief').description('默认输出模式'),
@@ -89,12 +89,12 @@ export const Config: Schema<Config> = Schema.intersect([
     allowedUsers: Schema.array(String).role('table').default([]).description('额外允许的用户列表，支持 userId 或 platform:userId'),
   }).description('服务设置'),
   Schema.object({
-    chatCommandName: Schema.string().default('ib').description('主聊天命令名'),
-    commandAliases: Schema.array(String).role('table').default(['ibchat', 'ibkr']).description('兼容命令别名'),
+    chatCommandName: Schema.string().default('tda').description('主聊天命令名'),
+    commandAliases: Schema.array(String).role('table').default(['tdachat']).description('兼容命令别名'),
   }).description('命令入口'),
   Schema.object({
     enableMiddleware: Schema.boolean().default(false).description('启用聊天式转发'),
-    middlewarePrefixes: Schema.array(String).role('table').default(['ib ', 'ibkr ']).description('聊天触发前缀'),
+    middlewarePrefixes: Schema.array(String).role('table').default(['tda ']).description('聊天触发前缀'),
     middlewareResponseMode: responseModeSchema.default('brief').description('聊天入口输出模式'),
     allowDirectChat: Schema.boolean().default(false).description('私聊允许不带前缀直接转发'),
     ignoreSelf: Schema.boolean().default(true).description('忽略机器人自身消息'),
@@ -111,7 +111,7 @@ export function apply(ctx: Context, config: Config) {
   const client = new IbkrClient(ctx, config, logger)
   const commandNames = [config.chatCommandName, ...config.commandAliases].filter(Boolean)
 
-  const chatCommand = ctx.command(`${config.chatCommandName} [message:text]`, '将自然语言请求转发给 ibkr 分析服务')
+  const chatCommand = ctx.command(`${config.chatCommandName} [message:text]`, '将自然语言请求转发给 trader-agent 分析服务')
     .userFields(['authority'])
     .option('mode', '-m <mode:string> 指定输出模式 brief/full/push')
     .option('full', '-f 使用 full 输出')
@@ -130,7 +130,7 @@ export function apply(ctx: Context, config: Config) {
       const content = message?.trim()
       if (!content) {
         logDebug(logger, config, 'command ignored, empty message, %o', sessionMeta)
-        return '请输入要转发给 ibkr 的内容。'
+        return '请输入要转发给 trader-agent 的内容。'
       }
 
       const responseMode = resolveResponseMode(
@@ -164,7 +164,7 @@ export function apply(ctx: Context, config: Config) {
     chatCommand.alias(alias)
   }
 
-  const healthCommand = ctx.command(`${config.chatCommandName}.health`, '检查 ibkr 服务健康状态')
+  const healthCommand = ctx.command(`${config.chatCommandName}.health`, '检查 trader-agent 服务健康状态')
     .userFields(['authority'])
     .action(async ({ session }) => {
       const sessionMeta = getSessionMeta(session as SessionLike)
@@ -181,7 +181,7 @@ export function apply(ctx: Context, config: Config) {
         return result.message
       }
       logInfo(logger, config, 'health success, %o', sessionMeta)
-      return `ibkr 服务正常，状态：${result.data.status}`
+      return `trader-agent 服务正常，状态：${result.data.status}`
     })
 
   for (const alias of config.commandAliases) {
@@ -258,7 +258,7 @@ class IbkrClient {
 
       if (!isAnalyzeResponse(response)) {
         logInfo(this.logger, this.config, 'http post invalid response, url=%s', url)
-        return { ok: false, message: 'ibkr 返回了无法识别的响应结构。' }
+        return { ok: false, message: 'trader-agent 返回了无法识别的响应结构。' }
       }
 
       logDebug(this.logger, this.config, 'http post success, url=%s, intent=%s, level=%s', url, response.intent, response.decision_level)
@@ -267,7 +267,7 @@ class IbkrClient {
       logInfo(this.logger, this.config, 'http post failed, url=%s, timeout=%dms, error=%s', url, this.config.timeout, formatErrorForLog(error))
       return {
         ok: false,
-        message: formatHttpError('调用 ibkr 分析接口失败', error),
+        message: formatHttpError('调用 trader-agent 分析接口失败', error),
       }
     }
   }
@@ -283,7 +283,7 @@ class IbkrClient {
 
       if (!response || typeof response.status !== 'string') {
         logInfo(this.logger, this.config, 'http get invalid response, url=%s', url)
-        return { ok: false, message: 'ibkr /health 返回了无法识别的响应结构。' }
+        return { ok: false, message: 'trader-agent /health 返回了无法识别的响应结构。' }
       }
 
       logDebug(this.logger, this.config, 'http get success, url=%s, status=%s', url, response.status)
@@ -292,7 +292,7 @@ class IbkrClient {
       logInfo(this.logger, this.config, 'http get failed, url=%s, timeout=%dms, error=%s', url, this.config.timeout, formatErrorForLog(error))
       return {
         ok: false,
-        message: formatHttpError('调用 ibkr health 接口失败', error),
+        message: formatHttpError('调用 trader-agent health 接口失败', error),
       }
     }
   }

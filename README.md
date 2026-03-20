@@ -1,23 +1,23 @@
-# koishi-plugin-aka-ibkr-agent
+# koishi-plugin-aka-trader-agent
 
-对接 `ibkr` 分析服务的 Koishi 薄适配层。
+对接 `trader-agent` 分析服务的 Koishi 薄适配层。
 
 这个插件只做三件事：
 
-- 把 Koishi 命令或聊天消息转成 `ibkr` 的 `/api/v1/analyze` 请求
-- 把 `ibkr` 返回的文本直接发回会话
-- 在 `ibkr` 迭代过程中提供一个低成本 smoke 检查
+- 把 Koishi 命令或聊天消息转成 `trader-agent` 的 `/api/v1/analyze` 请求
+- 把 `trader-agent` 返回的文本直接发回会话
+- 在 `trader-agent` 迭代过程中提供一个低成本 smoke 检查
 
 ## 当前边界
 
-- 依赖 `ibkr` 当前的 `GET /health` 和 `POST /api/v1/analyze`
+- 依赖 `trader-agent` 当前的 `GET /health` 和 `POST /api/v1/analyze`
 - 默认按只读分析使用
 - 不在 Koishi 侧重复实现意图识别和交易逻辑
 - 仅在上游真正产出确认字段后，再考虑确认执行流
 
 ## 配置
 
-- `baseUrl`: `ibkr` 服务基础地址，默认 `http://127.0.0.1:8000`
+- `baseUrl`: `trader-agent` 服务基础地址，默认 `http://127.0.0.1:8000`
 - `timeout`: HTTP 超时，默认 `30000`
 - `authToken`: 可选 Bearer Token
 - `defaultResponseMode`: 命令默认输出模式
@@ -25,10 +25,10 @@
 - `showDiagnostics`: 是否附加上游来源和错误信息
 - `minAuthority`: 最小 authority，默认 `4`
 - `allowedUsers`: 额外允许的用户列表，支持 `userId` 或 `platform:userId`
-- `chatCommandName`: 主聊天命令名，默认 `ib`
-- `commandAliases`: 兼容命令别名，默认包含 `ibchat`、`ibkr`
+- `chatCommandName`: 主聊天命令名，默认 `tda`
+- `commandAliases`: 兼容命令别名，默认包含 `tdachat`
 - `enableMiddleware`: 是否启用聊天式转发
-- `middlewarePrefixes`: 聊天入口前缀，默认 `ib `、`ibkr `
+- `middlewarePrefixes`: 聊天入口前缀，默认 `tda `
 - `middlewareResponseMode`: 聊天入口输出模式
 - `allowDirectChat`: 私聊允许不带前缀直接转发
 - `ignoreSelf`: 忽略机器人自身消息
@@ -39,17 +39,15 @@
 ## 命令
 
 ```text
-ib <message>
-ib.health
+tda <message>
+tda.health
 ```
 
 默认还兼容：
 
 ```text
-ibchat <message>
-ibchat.health
-ibkr <message>
-ibkr.health
+tdachat <message>
+tdachat.health
 ```
 
 可选参数：
@@ -67,7 +65,7 @@ ibkr.health
 如果你希望授权固定用户，可以配置：
 
 ```yml
-aka-ibkr-agent:xxxxxx:
+aka-trader-agent:xxxxxx:
   minAuthority: 4
   allowedUsers:
     - "onebot:123456789"
@@ -85,7 +83,7 @@ aka-ibkr-agent:xxxxxx:
 可配置：
 
 ```yml
-aka-ibkr-agent:xxxxxx:
+aka-trader-agent:xxxxxx:
   logLevel: info
 ```
 
@@ -111,10 +109,10 @@ pnpm run smoke
 可选环境变量：
 
 ```sh
-IBKR_AGENT_BASE_URL=http://127.0.0.1:8000
-IBKR_AGENT_AUTH_TOKEN=
-IBKR_AGENT_TIMEOUT=30000
-IBKR_AGENT_MESSAGE=帮我看看今晚持仓风险
+TRADER_AGENT_BASE_URL=http://127.0.0.1:8000
+TRADER_AGENT_AUTH_TOKEN=
+TRADER_AGENT_TIMEOUT=30000
+TRADER_AGENT_MESSAGE=帮我看看今晚持仓风险
 ```
 
 `smoke` 会检查：
@@ -122,4 +120,4 @@ IBKR_AGENT_MESSAGE=帮我看看今晚持仓风险
 - `/health` 是否可用
 - `/api/v1/analyze` 是否仍返回关键字段
 
-这样在 `ibkr` 迭代时，可以第一时间发现接口漂移。
+这样在 `trader-agent` 迭代时，可以第一时间发现接口漂移。
